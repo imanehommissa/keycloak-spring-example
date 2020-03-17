@@ -273,7 +273,7 @@ public class KeyCloakService {
 
 		String header_authorization = exchange.getHeader("Authorization");
 
-		List<String> authHeaders = (StringUtils.isBlank(header_authorization)) ? null : Arrays.asList(header_authorization.split(" "));
+		List<String> authHeaders = (StringUtils.isBlank(header_authorization)) ? null : Arrays.asList(header_authorization);
 		if (authHeaders == null || authHeaders.isEmpty()) {
 		    System.out.println("authHeaders is empty");
 			challenge = challengeResponse(exchange, OIDCAuthenticationError.Reason.NO_BEARER_TOKEN, null, null);
@@ -284,6 +284,7 @@ public class KeyCloakService {
 
         tokenString = null;
 		for (String authHeader : authHeaders) {
+			System.out.println(authHeader);
 			String[] split = authHeader.trim().split("\\s+");
 			if (split.length != 2) continue;
 			if (split[0].equalsIgnoreCase("Bearer")) {

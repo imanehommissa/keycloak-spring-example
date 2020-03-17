@@ -33,10 +33,12 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 
@@ -57,15 +59,10 @@ import javax.servlet.http.HttpServletRequest;
 @EnableConfigurationProperties(KeycloakSpringBootProperties.class)
 public class KeycloakAutoConfiguration extends KeycloakWebSecurityConfigurerAdapter {
 
+
     /**
-     * Load Keycloak configuration from application.properties or application.yml, rather than keycloak.json.
+     * Registers the KeycloakAuthenticationProvider with the authentication manager.
      */
-
-//    @Bean
-//    public KeycloakSpringBootConfigResolver keycloakConfigResolverOne() {
-//        return new KeycloakSpringBootConfigResolver();
-//    }
-
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) {
         KeycloakAuthenticationProvider keycloakAuthenticationProvider = keycloakAuthenticationProvider();
@@ -76,12 +73,26 @@ public class KeycloakAutoConfiguration extends KeycloakWebSecurityConfigurerAdap
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         super.configure(http);
-        http.cors().and().csrf().disable()
+//        http.cors().and().csrf().disable()
+//                .authorizeRequests()
+//                .antMatchers("/user/**").hasRole("USER")
+//                .antMatchers("/movies/**").hasRole("USER")
+//                .antMatchers("/keycloak/**").permitAll()
+//                .anyRequest().permitAll();
+
+        http.cors()
+                .and()
+                .csrf()
+                .disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionAuthenticationStrategy(sessionAuthenticationStrategy())
+                .and()
                 .authorizeRequests()
-                .antMatchers("/user/**").hasRole("user")
-                .antMatchers("/movies/**").hasRole("user")
+                .antMatchers("/user/**").hasRole("USER")
+                .antMatchers("/movies/**").hasRole("USER")
                 .antMatchers("/keycloak/**").permitAll()
-                .anyRequest().permitAll();
+                .anyRequest().denyAll();
+
     }
 
 
@@ -90,6 +101,9 @@ public class KeycloakAutoConfiguration extends KeycloakWebSecurityConfigurerAdap
         return new KeycloakDeployment();
     }
 
+    /**
+     * Load Keycloak configuration from application.properties or application.yml, rather than keycloak.json.
+     */
     @Bean
     @Primary
     public KeycloakConfigResolver keycloakConfigResolver() {
@@ -124,11 +138,15 @@ public class KeycloakAutoConfiguration extends KeycloakWebSecurityConfigurerAdap
         return registrationBean;
     }
 
+    /**
+     * Defines the session authentication strategy.
+     */
     @Bean
     @Override
     protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
         return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
     }
+
     @Bean
     @Override
     @ConditionalOnMissingBean(HttpSessionManager.class)
