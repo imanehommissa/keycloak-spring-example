@@ -162,6 +162,15 @@ public class KeyCloakService {
 				// set role
                 RealmResource realmResource = getRealmResource();
 
+                // Get realm role "tester" (requires view-realm role)
+                RoleRepresentation testerRealmRole = realmResource.roles()//
+                        .get("tester").toRepresentation();
+
+                // Assign realm role tester to user
+                userRessource.get(userId).roles().realmLevel() //
+                        .add(Arrays.asList(testerRealmRole));
+
+
 				RoleRepresentation userRealmRole =
 						realmResource.roles().get("user").toRepresentation();
 

@@ -42,6 +42,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
@@ -153,7 +154,14 @@ public class KeycloakAutoConfiguration extends KeycloakWebSecurityConfigurerAdap
         registrationBean.setEnabled(false);
         return registrationBean;
     }
-//
+
+    @Bean
+    @Override
+    protected KeycloakAuthenticatedActionsFilter keycloakAuthenticatedActionsRequestFilter() {
+        return super.keycloakAuthenticatedActionsRequestFilter();
+    }
+
+    //
 //    @Bean
 //    public RegistrationBean keycloakAuthenticatedActionsFilterBean(KeycloakAuthenticatedActionsFilter filter) {
 //        RegistrationBean registrationBean = new FilterRegistrationBean(filter);
