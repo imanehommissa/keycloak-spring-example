@@ -26,23 +26,18 @@ public class UserController {
 
 
 
-
     @RequestMapping(value = "/hello", method = RequestMethod.GET)
     @RolesAllowed("user")
     public ResponseEntity<?> sayHello(HttpServletRequest request) {
 
 
-        System.out.println("hello");
-        System.out.println(  request.getHeader("Authorization"));
 
 
 
         if (keyCloakService.authenticate(request).equals(AuthOutcome.AUTHENTICATED)) {
-            System.out.println("hello 1");
 
             return new ResponseEntity<>("Hi!, you are auhorized to view this response!", HttpStatus.OK);
         } else{
-            System.out.println("hello 2");
             return new ResponseEntity<>("Hi!, you are NOT auhorized !", HttpStatus.UNAUTHORIZED);
 
         }
