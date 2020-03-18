@@ -65,15 +65,15 @@ _DOCKER-COMPOSE UP_
 
 1. Create user by calling /user/create or create it from keycloak page
 
-![](/images/create.png)
+![](/img/create.png)
 
 2. Get access Token by calling user/token
 
-![](/images/create.png)
+![](/img/create.png)
 
 3. test token u got be careful it has expire time
 
-![](/images/hello.png)
+![](/img/hello.png)
 
 FACEBOOK :
 
