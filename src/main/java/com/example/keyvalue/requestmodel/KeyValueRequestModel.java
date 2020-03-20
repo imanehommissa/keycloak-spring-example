@@ -6,7 +6,7 @@ public class KeyValueRequestModel {
 	private String movieName;
 	private String favActor;
 	
-	
+
 	public String getMovieName() {
 		return movieName;
 	}

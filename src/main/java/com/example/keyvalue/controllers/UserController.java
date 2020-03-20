@@ -3,7 +3,6 @@ package com.example.keyvalue.controllers;
 import com.example.keyvalue.services.KeyCloakService;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.adapters.spi.AuthOutcome;
-import org.keycloak.adapters.spi.HttpFacade;
 import org.keycloak.representations.AccessToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

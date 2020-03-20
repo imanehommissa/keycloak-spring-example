@@ -23,7 +23,6 @@
 <!--            <dependency>-->
 <!--                <groupId>org.keycloak.bom</groupId>-->
 <!--                <artifactId>keycloak-adapter-bom</artifactId>-->
-<!--                <version>4.2.0.Final</version>-->
 <!--                <type>pom</type>-->
 <!--                <scope>import</scope>-->
 <!--            </dependency>-->
@@ -92,11 +91,13 @@
 
 
 
+        <!-- https://mvnrepository.com/artifact/org.keycloak/keycloak-admin-client -->
         <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-admin-client</artifactId>
-            <version>3.1.0.Final</version>
+            <version>6.0.1</version>
         </dependency>
+
 
         <dependency>
             <groupId>org.jboss.resteasy</groupId>

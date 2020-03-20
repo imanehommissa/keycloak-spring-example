@@ -3,7 +3,6 @@ package com.example.keyvalue.services;
 
 import com.example.keyvalue.model.UserCredentials;
 import com.example.keyvalue.model.UserDTO;
-import com.sun.deploy.resources.Deployment;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -12,7 +11,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.keycloak.OAuth2Constants;
 import org.keycloak.adapters.KeycloakDeployment;
 import org.keycloak.adapters.KeycloakDeploymentBuilder;
 import org.keycloak.adapters.OIDCAuthenticationError;
@@ -30,22 +28,21 @@ import org.keycloak.jose.jws.JWSInput;
 import org.keycloak.jose.jws.JWSInputException;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.adapters.config.AdapterConfig;
-import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import javax.security.auth.x500.X500Principal;
 import javax.security.cert.X509Certificate;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.security.Key;
 import java.util.*;
 
 import org.jboss.logging.Logger;
@@ -129,13 +126,19 @@ public class KeyCloakService {
         return responseToken;
     }
 
-    public int createUserInKeyCloak(UserDTO userDTO) {
+    public ResponseEntity createUserInKeyCloak(UserDTO userDTO) {
 
         int statusId = 0;
         try {
 
 
+
             UsersResource userRessource = getKeycloakUserResource();
+
+            CredentialRepresentation passwordCred = new CredentialRepresentation();
+            passwordCred.setTemporary(false);
+            passwordCred.setType(CredentialRepresentation.PASSWORD);
+            passwordCred.setValue(userDTO.getPassword());
 
             UserRepresentation user = new UserRepresentation();
             user.setUsername(userDTO.getUserName());
@@ -144,11 +147,18 @@ public class KeyCloakService {
             user.setLastName(userDTO.getLastName());
             user.setEnabled(true);
 
+
+//            user.setCredentials(Collections.singletonList(passwordCred));
+
+
             // Create user
 			Response result = userRessource.create(user);
 
 
+
             statusId = result.getStatus();
+
+            System.out.println(statusId);
 
 
 			if (statusId == 201) {
@@ -162,52 +172,34 @@ public class KeyCloakService {
 				// set role
                 RealmResource realmResource = getRealmResource();
 
-                // Get realm role "tester" (requires view-realm role)
-                RoleRepresentation testerRealmRole = realmResource.roles()//
-                        .get("tester").toRepresentation();
-
-                // Assign realm role tester to user
-                userRessource.get(userId).roles().realmLevel() //
-                        .add(Arrays.asList(testerRealmRole));
-
-
-				RoleRepresentation userRealmRole =
-						realmResource.roles().get("user").toRepresentation();
+//                 Get realm role "user" (requires view-realm role)
+                RoleRepresentation userRealmRole = realmResource.roles()
+                        .get("user").toRepresentation();
 
 				userRessource.get(userId).roles().realmLevel().add(Arrays.asList(userRealmRole));
 
-
-//				Keycloak keycloak = KeycloakBuilder.builder() //
-//						.serverUrl(AUTHURL)
-//						.realm(REALM)
-//						.username("adminn")
-//						.password("Pa55w0rd")
-//						.clientId(CLIENTID)
-//						.clientSecret(SECRETKEY)
-//						.build();
-
-				CredentialRepresentation passwordCred = new CredentialRepresentation();
-				passwordCred.setTemporary(false);
-				passwordCred.setType(CredentialRepresentation.PASSWORD);
-				passwordCred.setValue(userDTO.getPassword());
 
 
 				// exception
 				userRessource.get(userId).resetPassword(passwordCred);
 
-//				keycloak.realm(REALM).users().get(userId).resetPassword(passwordCred);
 
 
+                System.out.println("Username==" + userDTO.getUserName() + " created in keycloak successfully");
 
+                return new ResponseEntity<>("Username==" + userDTO.getUserName() + " created in keycloak successfully", HttpStatus.CREATED);
 
-				System.out.println("Username==" + userDTO.getUserName() + " created in keycloak successfully");
 
             } else if (statusId == 409) {
 
                 System.out.println("Username==" + userDTO.getUserName() + " already present in keycloak");
+                return new ResponseEntity<>("Username==" + userDTO.getUserName() + " already present in keycloak", HttpStatus.CONFLICT);
+
 
             } else {
                 System.out.println("Username==" + userDTO.getUserName() + " could not be created in keycloak");
+                return new ResponseEntity<>("Username==" + userDTO.getUserName() + " could not be created in keycloak", HttpStatus.BAD_REQUEST);
+
 
             }
 
@@ -216,8 +208,9 @@ public class KeyCloakService {
             e.printStackTrace();
 
         }
+        return new ResponseEntity<>("Username==" + userDTO.getUserName() + " could not be created in keycloak", HttpStatus.BAD_REQUEST);
 
-        return statusId;
+
 
     }
 

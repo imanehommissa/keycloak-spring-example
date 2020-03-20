@@ -22,7 +22,7 @@ public class KeyValueEntity {
 	public void setMovieId(int movieId) {
 		this.movieId = movieId;
 	}
-	
+
 	public String getMovieName() {
 		return movieName;
 	}

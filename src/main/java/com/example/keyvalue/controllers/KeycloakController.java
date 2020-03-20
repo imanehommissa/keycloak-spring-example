@@ -66,14 +66,13 @@ public class KeycloakController {
 	public ResponseEntity<?> createUser(@RequestBody UserDTO userDTO) {
 		try {
 
-			keyClockService.createUserInKeyCloak(userDTO);
-			return new ResponseEntity<>(HttpStatus.OK);
+			return keyClockService.createUserInKeyCloak(userDTO);
 		}
 
 		catch (Exception ex) {
 
 			ex.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>("Username==" + userDTO.getUserName() + " could not be created in keycloak",HttpStatus.BAD_REQUEST);
 
 		}
 

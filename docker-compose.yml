@@ -5,7 +5,7 @@ services:
   mysql:
     image: mysql:5.7
     volumes:
-      - C:\data\_mysql:/var/lib/mysql
+      - C:\data\mysql:/var/lib/mysql
     networks:
       - web
     environment:
@@ -17,7 +17,7 @@ services:
       - 3306:3306
 
   keycloak:
-    image: jboss/keycloak:7.0.0
+    image: jboss/keycloak:8.0.2
     environment:
       DB_VENDOR: MYSQL
       DB_ADDR: mysql
