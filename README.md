@@ -8,7 +8,7 @@ This project is showing how we can integrate springboot application with Keycloa
 
 * _JAVA_
 
-* _KEYCLOAK IMAGE:7.0.0_
+* _KEYCLOAK IMAGE:8.0.2_
 
 * _MYSQL IMAGE:5.7_
 
