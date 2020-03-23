@@ -1,28 +1,37 @@
 package com.example.keyvalue.controllers;
 
-import com.example.keyvalue.model.KeyValueEntity;
-import com.example.keyvalue.repository.KeyValueRepository;
-import com.example.keyvalue.requestmodel.KeyValueRequestModel;
+import com.example.keyvalue.exception.KeyNotFoundException;
+import com.example.keyvalue.model.KeyEntity;
+import com.example.keyvalue.model.ValueEntity;
+import com.example.keyvalue.repository.KeyRepository;
+import com.example.keyvalue.repository.ValueRepository;
 import com.example.keyvalue.services.KeyCloakService;
 import org.keycloak.adapters.spi.AuthOutcome;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 
 @RestController
-@RequestMapping("/movies")
+@RequestMapping("/keys")
 public class KeyValueController {
 
 
     @Autowired
-    KeyValueRepository keyValueRepository;
+    KeyRepository keyRepository;
+
+    @Autowired
+    ValueRepository valueRepository;
 
 
     @Autowired
@@ -32,75 +41,117 @@ public class KeyValueController {
 
 
     @PostMapping
-    public ResponseEntity<Void> postMovie(@RequestBody KeyValueRequestModel keyValueRequestModel, HttpServletRequest request) {
+    public ResponseEntity<Void> createKey(@Valid @RequestBody KeyEntity key, HttpServletRequest request) {
 
 
         if (keyCloakService.authenticate(request).equals(AuthOutcome.AUTHENTICATED)) {
-            KeyValueEntity keyValueEntity = new KeyValueEntity();
 
-
-            BeanUtils.copyProperties(keyValueRequestModel, keyValueEntity);
-            KeyValueEntity storedMovieDetails = keyValueRepository.save(keyValueEntity);
+            KeyEntity savedKey = keyRepository.save(key);
 
             HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.add("id", storedMovieDetails.getMovieId() + "");
+            httpHeaders.add("id", savedKey.getId() + "");
 
-            if (storedMovieDetails == null)
-                return null;
 
-            idList.add(storedMovieDetails.getMovieId());
+            idList.add(savedKey.getId());
 
             return new ResponseEntity<>(httpHeaders, HttpStatus.CREATED);
 
-        }else{
+        } else {
             return new ResponseEntity("Hi!, you are NOT auhorized !", HttpStatus.UNAUTHORIZED);
 
         }
     }
 
-
-//	@RequestMapping(value="/{id}", method = RequestMethod.GET)
 
     @GetMapping(path = "/{id}")
-    public ResponseEntity<KeyValueEntity> getMovies(@PathVariable int id,HttpServletRequest request) {
+    public ResponseEntity getKey(@PathVariable int id, HttpServletRequest request) {
 
         if (keyCloakService.authenticate(request).equals(AuthOutcome.AUTHENTICATED)) {
 
-            KeyValueEntity userEntity = keyValueRepository.findByMovieId(id);
+            Optional<KeyEntity> key = keyRepository.findById(id);
 
-            if (userEntity == null)
-                return null;
 
-            return new ResponseEntity<KeyValueEntity>(userEntity, HttpStatus.OK);
-        }
-        else {
+            if (!key.isPresent())
+                throw new KeyNotFoundException("id-" + id);
+
+            return new ResponseEntity(key, HttpStatus.OK);
+        } else {
             return new ResponseEntity("Hi!, you are NOT auhorized !", HttpStatus.UNAUTHORIZED);
 
         }
 
     }
 
-    @GetMapping(path = "/allMovies")
-    public Object getIds(HttpServletRequest request) {
+    @GetMapping
+    public ResponseEntity retrieveAllKeys(HttpServletRequest request) {
         if (keyCloakService.authenticate(request).equals(AuthOutcome.AUTHENTICATED)) {
-            if (idList != null)
-            return idList;
 
-        return null;
-        }else{
+            List<KeyEntity> keys = keyRepository.findAll();
+
+            return new ResponseEntity(keys, HttpStatus.OK);
+        } else {
             return new ResponseEntity("Hi!, you are NOT auhorized !", HttpStatus.UNAUTHORIZED);
 
         }
 
     }
 
-    @GetMapping(path = "/test")
-    public String test(HttpServletRequest request) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity deleteKey(@PathVariable int id, HttpServletRequest request) {
         if (keyCloakService.authenticate(request).equals(AuthOutcome.AUTHENTICATED)) {
 
-            return "test all good";
-        }else{
-            return "Hi!, you are NOT auhorized";
+            keyRepository.deleteById(id);
+            return new ResponseEntity(String.format("key of id %s is is deleted", id), HttpStatus.OK);
+
+        } else {
+            return new ResponseEntity("Hi!, you are NOT auhorized !", HttpStatus.UNAUTHORIZED);
+
+        }
+
+    }
+
+    @PostMapping("/{id}/values")
+    public ResponseEntity createPost(@PathVariable int id, @RequestBody ValueEntity value, HttpServletRequest request) {
+
+        if (keyCloakService.authenticate(request).equals(AuthOutcome.AUTHENTICATED)) {
+
+            Optional<KeyEntity> keyOptional = keyRepository.findById(id);
+
+            if (!keyOptional.isPresent()) {
+                throw new KeyNotFoundException("id-" + id);
+            }
+
+            KeyEntity key = keyOptional.get();
+
+            value.setKey(key);
+
+            valueRepository.save(value);
+
+            URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(value.getId())
+                    .toUri();
+
+            return ResponseEntity.created(location).build();
+        } else {
+            return new ResponseEntity("Hi!, you are NOT auhorized !", HttpStatus.UNAUTHORIZED);
+
+        }
+
+    }
+
+    @GetMapping("/{id}/values")
+    public ResponseEntity<ValueEntity> retrieveAllValues(@PathVariable int id, HttpServletRequest request) {
+
+        if (keyCloakService.authenticate(request).equals(AuthOutcome.AUTHENTICATED)) {
+
+            Optional<KeyEntity> keyOptional = keyRepository.findById(id);
+
+            if (!keyOptional.isPresent()) {
+                throw new KeyNotFoundException("id-" + id);
+            }
+
+            return new ResponseEntity(keyOptional.get().getValues(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity("Hi!, you are NOT auhorized !", HttpStatus.UNAUTHORIZED);
 
         }
     }

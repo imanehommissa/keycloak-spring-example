@@ -113,7 +113,7 @@ public class KeycloakAutoConfiguration extends KeycloakWebSecurityConfigurerAdap
                 .and()
                 .authorizeRequests()
                 .antMatchers("/user/**").hasRole("USER")
-                .antMatchers("/movies/**").hasRole("USER")
+                .antMatchers("/keys/**").hasRole("USER")
                 .antMatchers("/keycloak/**").permitAll()
                 .anyRequest().denyAll();
 
