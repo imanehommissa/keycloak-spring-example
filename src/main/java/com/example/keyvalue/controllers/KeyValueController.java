@@ -111,7 +111,7 @@ public class KeyValueController {
     }
 
     @PostMapping("/{id}/values")
-    public ResponseEntity createPost(@PathVariable int id, @RequestBody ValueEntity value, HttpServletRequest request) {
+    public ResponseEntity createValue(@PathVariable int id, @RequestBody ValueEntity value, HttpServletRequest request) {
 
         if (keyCloakService.authenticate(request).equals(AuthOutcome.AUTHENTICATED)) {
 
@@ -127,10 +127,11 @@ public class KeyValueController {
 
             valueRepository.save(value);
 
-            URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(value.getId())
-                    .toUri();
+//            URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(value.getId())
+//                    .toUri();
 
-            return ResponseEntity.created(location).build();
+//            return ResponseEntity.created(location).build();
+            return new ResponseEntity("",HttpStatus.OK);
         } else {
             return new ResponseEntity("Hi!, you are NOT auhorized !", HttpStatus.UNAUTHORIZED);
 
