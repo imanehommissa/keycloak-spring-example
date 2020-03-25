@@ -53,27 +53,7 @@ TO DO SO :
 
 1. Create Database imdb;
 
-1. Create table movies (movie_id int primary key auto_increment, movie_name varchar(100), fav_actor varchar(100))
-
-1. create realm with client , roles and users or just import it from the files in repo its "realm-export" .
-
-## Running application
-
-_DOCKER-COMPOSE UP_
-
-## Test Application
-
-1. Create user by calling /user/create or create it from keycloak page
-
-![](/img/create.png)
-
-2. Get access Token by calling user/token
-
-![](/img/create.png)
-
-3. test token u got be careful it has expire time
-
-![](/img/hello.png)
+# __will document it later__
 
 FACEBOOK :
 
