@@ -1,6 +1,7 @@
 package com.example.keyvalue.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import javax.persistence.*;
 
@@ -17,6 +18,7 @@ public class ValueEntity {
     @JsonIgnore
     private KeyEntity key;
 
+    @JsonView(KeyEntity.Views.Internal.class)
     public Integer getId() {
         return id;
     }
@@ -25,6 +27,7 @@ public class ValueEntity {
         this.id = id;
     }
 
+    @JsonView(KeyEntity.Views.Internal.class)
     public String getValue() {
         return value;
     }

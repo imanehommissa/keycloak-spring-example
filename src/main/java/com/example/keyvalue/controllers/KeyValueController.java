@@ -6,17 +6,16 @@ import com.example.keyvalue.model.ValueEntity;
 import com.example.keyvalue.repository.KeyRepository;
 import com.example.keyvalue.repository.ValueRepository;
 import com.example.keyvalue.services.KeyCloakService;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.keycloak.adapters.spi.AuthOutcome;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -64,6 +63,7 @@ public class KeyValueController {
 
 
     @GetMapping(path = "/{id}")
+    @JsonView(KeyEntity.Views.Internal.class)
     public ResponseEntity getKey(@PathVariable int id, HttpServletRequest request) {
 
         if (keyCloakService.authenticate(request).equals(AuthOutcome.AUTHENTICATED)) {
@@ -83,10 +83,12 @@ public class KeyValueController {
     }
 
     @GetMapping
+    @JsonView(KeyEntity.Views.Public.class)
     public ResponseEntity retrieveAllKeys(HttpServletRequest request) {
         if (keyCloakService.authenticate(request).equals(AuthOutcome.AUTHENTICATED)) {
 
             List<KeyEntity> keys = keyRepository.findAll();
+
 
             return new ResponseEntity(keys, HttpStatus.OK);
         } else {

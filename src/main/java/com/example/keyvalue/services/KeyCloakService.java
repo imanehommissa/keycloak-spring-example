@@ -180,7 +180,6 @@ public class KeyCloakService {
 
 
 
-				// exception
 				userRessource.get(userId).resetPassword(passwordCred);
 
 
@@ -245,6 +244,7 @@ public class KeyCloakService {
         Keycloak kc = KeycloakBuilder.builder().serverUrl(AUTHURL).realm("master").username("adminn").password("Pa55w0rd")
                 .clientId("admin-cli").resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).build())
                 .build();
+
 
         RealmResource realmResource = kc.realm(REALM);
         UsersResource userRessource = realmResource.users();

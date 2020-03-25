@@ -117,6 +117,8 @@ public class KeycloakAutoConfiguration extends KeycloakWebSecurityConfigurerAdap
                 .antMatchers("/keycloak/**").permitAll()
                 .anyRequest().denyAll();
 
+        //agent
+
     }
 
 
